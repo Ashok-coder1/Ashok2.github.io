@@ -33,12 +33,13 @@ app.post('/submit', async (req, res) => {
     try {
         const { fullName, mobile, email, subject, message } = req.body;
 
-        // Save to MongoDB
+        // 1. Save to MongoDB (This usually works fast)
         const newForm = new Form({ fullName, mobile, email, subject, message });
         await newForm.save();
 
-        // Send Email
-        await transporter.sendMail({
+        // 2. Send Email WITHOUT 'await'
+        // This lets the server continue even if Gmail is slow or fails
+        transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: process.env.EMAIL_USER,
             subject: `New Form Submission - ${subject}`,
@@ -50,17 +51,18 @@ app.post('/submit', async (req, res) => {
                 <p><b>Subject:</b> ${subject}</p>
                 <p><b>Message:</b> ${message}</p>
             `
-        });
+        }).then(() => console.log("Email sent successfully"))
+          .catch(err => console.error("Email failed but data was saved:", err));
 
-        res.status(200).json({ message: "Success" });
+        // 3. Tell the frontend it worked!
+        return res.status(200).json({ message: "Success" });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error" });
+        console.error("Database Error:", error);
+        return res.status(500).json({ message: "Error" });
     }
 });
 
 // Start server
-app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server running on port ${process.env.PORT || 3000}`);
-});
+const PORT = process.env.PORT || 3000; // 3000 for local testing
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
