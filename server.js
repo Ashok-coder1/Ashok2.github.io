@@ -5,8 +5,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-
 const Form = require('./models/Form');
 
 const app = express();
@@ -14,6 +12,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // MongoDB Connect
@@ -62,7 +61,7 @@ app.post('/submit', async (req, res) => {
     }
 });
 
-// Start Server
-app.listen(process.env.PORT, () => {
-    console.log(`Server running on port ${process.env.PORT}`);
+// Start server
+app.listen(process.env.PORT || 3000, () => {
+    console.log(`Server running on port ${process.env.PORT || 3000}`);
 });
