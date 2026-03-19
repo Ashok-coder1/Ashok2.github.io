@@ -19,7 +19,7 @@ form.addEventListener('submit', async (e) => {
             body: JSON.stringify(formData)
         });
 
-        if (res.ok) {
+       if (data.message === "Success") {
             window.location.href = "/thankyou.html";
         } else {
             alert("Something went wrong");
